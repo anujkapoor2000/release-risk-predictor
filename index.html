@@ -4,12 +4,36 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Release Risk Predictor</title>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;600;700&display=swap" rel="stylesheet" />
     <style>
+      :root {
+        --navy:        #003087;
+        --navy-dark:   #00509e;
+        --teal:        #00a896;
+        --ink:         #1a1a2e;
+        --ink-sec:     #5a6a82;
+        --ink-muted:   #9aaabf;
+        --border:      #e8ecf4;
+        --border-light:#f0f2f7;
+        --surface:     #f8faff;
+        --green:       #00875a;
+        --green-light: #dcfce7;
+        --amber:       #d97706;
+        --red:         #dc2626;
+        --font-serif:  "Instrument Serif", Georgia, "Times New Roman", serif;
+        --font-sans:   "DM Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+        --font-mono:   "IBM Plex Mono", "Courier New", monospace;
+        --shadow-sm:   0 2px 8px rgba(0,0,0,.04);
+        --shadow-md:   0 4px 24px rgba(0,48,135,.06);
+        --shadow-lg:   0 12px 40px rgba(0,48,135,.12);
+      }
       *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-      body { font-family: 'Noto Sans', 'Segoe UI', sans-serif; background: #F0F2F5; }
+      html { scroll-behavior: smooth; }
+      body { font-family: var(--font-sans); background: var(--surface); color: var(--ink); -webkit-font-smoothing: antialiased; }
       ::-webkit-scrollbar { width: 5px; height: 5px; }
-      ::-webkit-scrollbar-thumb { background: #003087; border-radius: 3px; }
+      ::-webkit-scrollbar-thumb { background: var(--navy); border-radius: 3px; }
     </style>
   </head>
   <body>

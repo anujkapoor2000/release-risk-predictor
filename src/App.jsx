@@ -1,13 +1,23 @@
 import { useState } from "react";
 
-const BLUE  = "#003087";
-const RED   = "#E4002B";
-const GREEN = "#16A34A";
-const AMBER = "#D97706";
-const LIGHT = "#E8EEF7";
-const GRAY  = "#6B7280";
-const MONO  = "'Courier New', monospace";
-const SANS  = "'Noto Sans', 'Segoe UI', sans-serif";
+// ── Design tokens (matching AMS Estimator) ───────────────────────────────────
+const BLUE     = "#003087";
+const NAVY_D   = "#00509e";
+const TEAL     = "#00a896";
+const RED      = "#dc2626";
+const GREEN    = "#00875a";
+const AMBER    = "#d97706";
+const LIGHT    = "#f8faff";
+const BORDER   = "#e8ecf4";
+const BORDER_L = "#f0f2f7";
+const INK      = "#1a1a2e";
+const INK_SEC  = "#5a6a82";
+const INK_MUTED= "#9aaabf";
+const SERIF    = "'Instrument Serif', Georgia, serif";
+const MONO     = "'IBM Plex Mono', 'Courier New', monospace";
+const SANS     = "'DM Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif";
+const SHADOW_SM = "0 2px 8px rgba(0,0,0,0.04)";
+const SHADOW_MD = "0 4px 24px rgba(0,48,135,0.06)";
 
 // ── Sample Release Data ──────────────────────────────────────────────────────
 const RELEASES = [
@@ -119,25 +129,24 @@ const RELEASES = [
 ];
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
-const RISK_COLORS = { LOW: GREEN, MEDIUM: AMBER, HIGH: "#DC2626", CRITICAL: "#7C2D12" };
-const RISK_BG     = { LOW: "#DCFCE7", MEDIUM: "#FEF3C7", HIGH: "#FEE2E2", CRITICAL: "#FEE2E2" };
-const SEV_COLORS  = { CRITICAL:"#7C2D12", HIGH:"#DC2626", MEDIUM: AMBER, LOW: GRAY };
+const RISK_COLORS = { LOW: GREEN, MEDIUM: AMBER, HIGH: "#dc2626", CRITICAL: "#7C2D12" };
+const RISK_BG     = { LOW: "#dcfce7", MEDIUM: "#FEF3C7", HIGH: "#FEE2E2", CRITICAL: "#FEE2E2" };
+const SEV_COLORS  = { CRITICAL:"#7C2D12", HIGH:"#dc2626", MEDIUM: AMBER, LOW: INK_SEC };
 const SEV_BG      = { CRITICAL:"#FEE2E2", HIGH:"#FEE2E2", MEDIUM:"#FEF3C7", LOW:"#F3F4F6" };
 
 function scoreColor(s) {
   if (s >= 75) return "#7C2D12";
-  if (s >= 50) return "#DC2626";
+  if (s >= 50) return "#dc2626";
   if (s >= 25) return AMBER;
   return GREEN;
 }
 
 function RiskGauge({ score }) {
   const c = scoreColor(score);
-  const deg = Math.round((score / 100) * 180);
   return (
     <div style={{ position:"relative", width:120, height:66, margin:"0 auto 8px" }}>
       <svg width="120" height="66" viewBox="0 0 120 66">
-        <path d="M10,60 A50,50 0 0,1 110,60" fill="none" stroke="#E5E7EB" strokeWidth="10" strokeLinecap="round"/>
+        <path d="M10,60 A50,50 0 0,1 110,60" fill="none" stroke={BORDER} strokeWidth="10" strokeLinecap="round"/>
         <path d="M10,60 A50,50 0 0,1 110,60" fill="none" stroke={c} strokeWidth="10" strokeLinecap="round"
           strokeDasharray={`${(score/100)*157} 157`}/>
         <text x="60" y="55" textAnchor="middle" fontSize="20" fontWeight="900" fill={c} fontFamily={MONO}>{score}</text>
@@ -153,88 +162,100 @@ export default function ReleaseRiskPredictor() {
   const rel = selected;
   const rcColor = rel.recommendation.startsWith("NO") ? RED : GREEN;
 
-  const Card = ({children, style={}}) => (
-    <div style={{ background:"#fff", borderRadius:10, border:"1px solid #E5E7EB", padding:18, boxShadow:"0 1px 4px rgba(0,0,0,0.06)", ...style }}>{children}</div>
+  const Card = ({ children, style={} }) => (
+    <div style={{ background:"#fff", borderRadius:16, border:`1px solid ${BORDER}`, padding:20, boxShadow:SHADOW_SM, ...style }}>
+      {children}
+    </div>
   );
 
-  const STitle = ({children}) => (
-    <div style={{ fontSize:10, fontWeight:800, color:BLUE, textTransform:"uppercase", letterSpacing:"0.1em", marginBottom:12, paddingBottom:6, borderBottom:`2px solid ${BLUE}` }}>{children}</div>
+  const STitle = ({ children }) => (
+    <div style={{ fontSize:10, fontWeight:800, color:BLUE, textTransform:"uppercase", letterSpacing:"0.12em", marginBottom:14, paddingBottom:8, borderBottom:`2px solid ${BLUE}` }}>
+      {children}
+    </div>
   );
 
-  const Badge = ({label, color, bg}) => (
-    <span style={{ fontSize:10, fontWeight:800, color, background:bg, padding:"2px 9px", borderRadius:10, whiteSpace:"nowrap" }}>{label}</span>
+  const Badge = ({ label, color, bg }) => (
+    <span style={{ fontSize:10, fontWeight:700, color, background:bg, padding:"2px 10px", borderRadius:9999, whiteSpace:"nowrap", fontFamily:SANS }}>
+      {label}
+    </span>
   );
 
   const TABS = [
-    { id:"overview",    label:"📊 Overview" },
-    { id:"findings",    label:"🔍 Risk Findings" },
-    { id:"coverage",    label:"🧪 Test Coverage" },
-    { id:"timeline",    label:"📅 Timeline" },
-    { id:"regression",  label:"🎯 Targeted Regression" },
-    { id:"ai",          label:"🤖 AI Insight" },
+    { id:"overview",   label:"📊 Overview" },
+    { id:"findings",   label:"🔍 Risk Findings" },
+    { id:"coverage",   label:"🧪 Test Coverage" },
+    { id:"timeline",   label:"📅 Timeline" },
+    { id:"regression", label:"🎯 Targeted Regression" },
+    { id:"ai",         label:"🤖 AI Insight" },
   ];
 
   const renderTab = () => {
-    switch(tab) {
+    switch (tab) {
       case "overview": return (
         <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:16 }}>
-          {/* Risk Score */}
-          <Card style={{ gridColumn:"1/-1", display:"flex", alignItems:"center", gap:24, background:`linear-gradient(135deg,${BLUE},#00509E)`, color:"#fff", border:"none" }}>
+
+          {/* Hero risk card */}
+          <Card style={{ gridColumn:"1/-1", display:"flex", alignItems:"center", gap:24,
+            background:`linear-gradient(135deg,${BLUE},${NAVY_D})`, color:"#fff", border:"none", boxShadow:SHADOW_MD }}>
             <div style={{ flex:1 }}>
-              <div style={{ fontSize:10, opacity:0.6, textTransform:"uppercase", letterSpacing:"0.1em", marginBottom:4 }}>Release</div>
-              <div style={{ fontSize:20, fontWeight:900 }}>{rel.name}</div>
-              <div style={{ fontSize:12, opacity:0.75, marginTop:2 }}>{rel.id} · {rel.module} · {rel.gwVersion} · Target: {rel.target}</div>
-              <div style={{ marginTop:12, display:"flex", gap:8, flexWrap:"wrap" }}>
+              <div style={{ fontSize:10, opacity:0.6, textTransform:"uppercase", letterSpacing:"0.1em", marginBottom:6, fontFamily:MONO }}>Release</div>
+              <div style={{ fontSize:24, fontWeight:400, fontFamily:SERIF, lineHeight:1.2 }}>{rel.name}</div>
+              <div style={{ fontSize:11, opacity:0.7, marginTop:6, fontFamily:MONO }}>{rel.id} · {rel.module} · {rel.gwVersion} · Target: {rel.target}</div>
+              <div style={{ marginTop:14, display:"flex", gap:8, flexWrap:"wrap" }}>
                 <Badge label={rel.type} color="#fff" bg="rgba(255,255,255,0.2)"/>
-                <Badge label={rel.env} color="#fff" bg="rgba(255,255,255,0.2)"/>
-                <Badge label={`Rollback risk: ${rel.rollbackProb}%`} color={rel.rollbackProb>30?"#FEE2E2":"#DCFCE7"} bg={rel.rollbackProb>30?"rgba(220,38,38,0.3)":"rgba(22,163,74,0.3)"}/>
+                <Badge label={rel.env}  color="#fff" bg="rgba(255,255,255,0.2)"/>
+                <Badge
+                  label={`Rollback risk: ${rel.rollbackProb}%`}
+                  color={rel.rollbackProb > 30 ? "#FEE2E2" : "#dcfce7"}
+                  bg={rel.rollbackProb > 30 ? "rgba(220,38,38,0.3)" : "rgba(0,135,90,0.3)"}
+                />
               </div>
             </div>
             <div style={{ textAlign:"center", flexShrink:0 }}>
               <RiskGauge score={rel.riskScore}/>
-              <div style={{ fontSize:11, fontWeight:700, color:scoreColor(rel.riskScore), background:"#fff", borderRadius:20, padding:"2px 14px", marginBottom:6 }}>
+              <div style={{ fontSize:11, fontWeight:700, color:scoreColor(rel.riskScore), background:"#fff", borderRadius:9999, padding:"3px 14px", marginBottom:8 }}>
                 {rel.riskBand} RISK
               </div>
-              <div style={{ fontSize:13, fontWeight:900, background:rcColor, color:"#fff", borderRadius:8, padding:"6px 16px" }}>
+              <div style={{ fontSize:12, fontWeight:700, background:rcColor, color:"#fff", borderRadius:8, padding:"7px 18px", letterSpacing:"0.02em", fontFamily:SANS }}>
                 {rel.recommendation}
               </div>
             </div>
           </Card>
 
-          {/* Change Metrics */}
+          {/* Git diff */}
           <Card>
             <STitle>Git Diff Summary</STitle>
             {[
-              { label:"Files Changed",    value:rel.gitDiff.filesChanged },
-              { label:"Lines Added",      value:`+${rel.gitDiff.linesAdded.toLocaleString()}` },
-              { label:"Lines Removed",    value:`-${rel.gitDiff.linesRemoved.toLocaleString()}` },
-              { label:"Gosu Files",       value:rel.gitDiff.gosuFiles },
-              { label:"PCF Screen Files", value:rel.gitDiff.pcfFiles },
-              { label:"Config Files",     value:rel.gitDiff.configFiles },
+              { label:"Files Changed",    value: rel.gitDiff.filesChanged },
+              { label:"Lines Added",      value: `+${rel.gitDiff.linesAdded.toLocaleString()}` },
+              { label:"Lines Removed",    value: `-${rel.gitDiff.linesRemoved.toLocaleString()}` },
+              { label:"Gosu Files",       value: rel.gitDiff.gosuFiles },
+              { label:"PCF Screen Files", value: rel.gitDiff.pcfFiles },
+              { label:"Config Files",     value: rel.gitDiff.configFiles },
             ].map(r => (
-              <div key={r.label} style={{ display:"flex", justifyContent:"space-between", padding:"6px 0", borderBottom:"1px solid #F3F4F6" }}>
-                <span style={{ fontSize:12, color:"#374151" }}>{r.label}</span>
+              <div key={r.label} style={{ display:"flex", justifyContent:"space-between", padding:"7px 0", borderBottom:`1px solid ${BORDER_L}` }}>
+                <span style={{ fontSize:12, color:INK_SEC }}>{r.label}</span>
                 <span style={{ fontSize:13, fontWeight:800, color:BLUE, fontFamily:MONO }}>{r.value}</span>
               </div>
             ))}
           </Card>
 
-          {/* Historical */}
+          {/* Historical signal */}
           <Card>
             <STitle>Historical Signal</STitle>
             {[
-              { label:"Total Releases Analysed",  value:rel.historicalReleases },
-              { label:"Prior Failures",            value:rel.priorFailures, warn:rel.priorFailures>3 },
-              { label:"Last Release Outcome",      value:rel.lastReleaseOutcome, warn:rel.lastReleaseOutcome!=="SUCCESS" },
-              { label:"Critical Uncovered Paths",  value:rel.testCoverage.criticalUncovered, warn:rel.testCoverage.criticalUncovered>0 },
+              { label:"Total Releases Analysed", value: rel.historicalReleases },
+              { label:"Prior Failures",           value: rel.priorFailures,            warn: rel.priorFailures > 3 },
+              { label:"Last Release Outcome",     value: rel.lastReleaseOutcome,       warn: rel.lastReleaseOutcome !== "SUCCESS" },
+              { label:"Critical Uncovered Paths", value: rel.testCoverage.criticalUncovered, warn: rel.testCoverage.criticalUncovered > 0 },
             ].map(r => (
-              <div key={r.label} style={{ display:"flex", justifyContent:"space-between", padding:"6px 0", borderBottom:"1px solid #F3F4F6" }}>
-                <span style={{ fontSize:12, color:"#374151" }}>{r.label}</span>
+              <div key={r.label} style={{ display:"flex", justifyContent:"space-between", padding:"7px 0", borderBottom:`1px solid ${BORDER_L}` }}>
+                <span style={{ fontSize:12, color:INK_SEC }}>{r.label}</span>
                 <span style={{ fontSize:13, fontWeight:800, fontFamily:MONO, color: r.warn ? RED : BLUE }}>{r.value}</span>
               </div>
             ))}
-            <div style={{ marginTop:12, padding:10, background: rel.priorFailures > 3 ? "#FEE2E2" : "#DCFCE7", borderRadius:7 }}>
-              <div style={{ fontSize:11, fontWeight:700, color: rel.priorFailures>3 ? RED : GREEN }}>
+            <div style={{ marginTop:12, padding:"10px 12px", background: rel.priorFailures > 3 ? "#FEE2E2" : "#dcfce7", borderRadius:8 }}>
+              <div style={{ fontSize:11, fontWeight:700, color: rel.priorFailures > 3 ? RED : GREEN }}>
                 {rel.priorFailures > 3 ? "⚠ Elevated failure history — apply heightened scrutiny" : "✓ Acceptable historical failure rate"}
               </div>
             </div>
@@ -245,7 +266,7 @@ export default function ReleaseRiskPredictor() {
             <STitle>Integrations in Scope</STitle>
             <div style={{ display:"flex", flexWrap:"wrap", gap:8 }}>
               {rel.integrations.map(i => (
-                <div key={i} style={{ padding:"5px 12px", background:LIGHT, borderRadius:20, fontSize:11, color:BLUE, fontWeight:600, border:`1px solid ${BLUE}30` }}>{i}</div>
+                <div key={i} style={{ padding:"5px 14px", background:LIGHT, borderRadius:9999, fontSize:11, color:BLUE, fontWeight:600, border:`1px solid ${BORDER}` }}>{i}</div>
               ))}
             </div>
           </Card>
@@ -254,25 +275,25 @@ export default function ReleaseRiskPredictor() {
 
       case "findings": return (
         <div>
-          <div style={{ display:"flex", gap:10, marginBottom:14, flexWrap:"wrap" }}>
+          <div style={{ display:"flex", gap:8, marginBottom:16, flexWrap:"wrap" }}>
             {["CRITICAL","HIGH","MEDIUM","LOW"].map(sev => {
-              const count = rel.findings.filter(f => f.sev===sev).length;
+              const count = rel.findings.filter(f => f.sev === sev).length;
               return count > 0 ? (
-                <div key={sev} style={{ padding:"6px 14px", borderRadius:20, background:SEV_BG[sev], border:`1.5px solid ${SEV_COLORS[sev]}40` }}>
-                  <span style={{ fontWeight:800, fontSize:11, color:SEV_COLORS[sev] }}>{sev}: {count}</span>
+                <div key={sev} style={{ padding:"5px 14px", borderRadius:9999, background:SEV_BG[sev], border:`1.5px solid ${SEV_COLORS[sev]}40` }}>
+                  <span style={{ fontWeight:700, fontSize:11, color:SEV_COLORS[sev] }}>{sev}: {count}</span>
                 </div>
               ) : null;
             })}
           </div>
-          {rel.findings.map((f,i) => (
+          {rel.findings.map((f, i) => (
             <Card key={i} style={{ marginBottom:12, borderLeft:`4px solid ${SEV_COLORS[f.sev]}` }}>
               <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:8 }}>
-                <div style={{ fontWeight:800, fontSize:13, color:"#111827" }}>{f.area}</div>
+                <div style={{ fontWeight:700, fontSize:13, color:INK }}>{f.area}</div>
                 <Badge label={f.sev} color={SEV_COLORS[f.sev]} bg={SEV_BG[f.sev]}/>
               </div>
-              <div style={{ fontSize:12, color:"#374151", lineHeight:1.6, marginBottom:10 }}>{f.detail}</div>
-              <div style={{ padding:"8px 12px", background:"#F0FDF4", borderRadius:7, borderLeft:`3px solid ${GREEN}` }}>
-                <div style={{ fontSize:10, fontWeight:700, color:GREEN, marginBottom:2 }}>RECOMMENDED ACTION</div>
+              <div style={{ fontSize:12, color:INK_SEC, lineHeight:1.65, marginBottom:10 }}>{f.detail}</div>
+              <div style={{ padding:"9px 12px", background:"#F0FDF4", borderRadius:8, borderLeft:`3px solid ${GREEN}` }}>
+                <div style={{ fontSize:10, fontWeight:800, color:GREEN, marginBottom:2, textTransform:"uppercase", letterSpacing:"0.07em" }}>Recommended Action</div>
                 <div style={{ fontSize:12, color:"#166534" }}>{f.fix}</div>
               </div>
             </Card>
@@ -285,14 +306,14 @@ export default function ReleaseRiskPredictor() {
           <Card>
             <STitle>Coverage Delta</STitle>
             <div style={{ textAlign:"center", padding:"16px 0" }}>
-              <div style={{ fontSize:11, color:GRAY, marginBottom:4 }}>Before Merge</div>
+              <div style={{ fontSize:10, color:INK_MUTED, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:4 }}>Before Merge</div>
               <div style={{ fontSize:42, fontWeight:900, color:BLUE, fontFamily:MONO }}>{rel.testCoverage.before}%</div>
-              <div style={{ fontSize:24, color:GRAY, margin:"6px 0" }}>↓</div>
-              <div style={{ fontSize:11, color:GRAY, marginBottom:4 }}>After Merge</div>
+              <div style={{ fontSize:24, color:INK_MUTED, margin:"8px 0" }}>↓</div>
+              <div style={{ fontSize:10, color:INK_MUTED, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:4 }}>After Merge</div>
               <div style={{ fontSize:42, fontWeight:900, color: rel.testCoverage.delta < 0 ? RED : GREEN, fontFamily:MONO }}>
                 {rel.testCoverage.after}%
               </div>
-              <div style={{ marginTop:12, padding:"8px 16px", borderRadius:8, background: rel.testCoverage.delta < 0 ? "#FEE2E2" : "#DCFCE7" }}>
+              <div style={{ marginTop:14, display:"inline-block", padding:"6px 18px", borderRadius:9999, background: rel.testCoverage.delta < 0 ? "#FEE2E2" : "#dcfce7" }}>
                 <span style={{ fontWeight:800, fontSize:14, color: rel.testCoverage.delta < 0 ? RED : GREEN }}>
                   {rel.testCoverage.delta >= 0 ? "+" : ""}{rel.testCoverage.delta}% delta
                 </span>
@@ -302,42 +323,45 @@ export default function ReleaseRiskPredictor() {
           <Card>
             <STitle>Coverage Thresholds</STitle>
             {[
-              { label:"Minimum acceptable",       threshold:"62%", status: rel.testCoverage.after >= 62 ? "PASS" : "FAIL" },
-              { label:"Target (industry standard)",threshold:"75%", status: rel.testCoverage.after >= 75 ? "PASS" : "FAIL" },
-              { label:"Excellence benchmark",      threshold:"85%", status: rel.testCoverage.after >= 85 ? "PASS" : "FAIL" },
+              { label:"Minimum acceptable",        threshold:"62%", status: rel.testCoverage.after >= 62 ? "PASS" : "FAIL" },
+              { label:"Target (industry standard)", threshold:"75%", status: rel.testCoverage.after >= 75 ? "PASS" : "FAIL" },
+              { label:"Excellence benchmark",       threshold:"85%", status: rel.testCoverage.after >= 85 ? "PASS" : "FAIL" },
             ].map(r => (
-              <div key={r.label} style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"10px 0", borderBottom:"1px solid #F3F4F6" }}>
+              <div key={r.label} style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"10px 0", borderBottom:`1px solid ${BORDER_L}` }}>
                 <div>
-                  <div style={{ fontSize:12, color:"#374151" }}>{r.label}</div>
-                  <div style={{ fontSize:11, color:GRAY }}>{r.threshold}</div>
+                  <div style={{ fontSize:12, color:INK_SEC }}>{r.label}</div>
+                  <div style={{ fontSize:11, color:INK_MUTED, fontFamily:MONO }}>{r.threshold}</div>
                 </div>
-                <Badge label={r.status} color={r.status==="PASS" ? GREEN : RED} bg={r.status==="PASS" ? "#DCFCE7" : "#FEE2E2"}/>
+                <Badge label={r.status} color={r.status === "PASS" ? GREEN : RED} bg={r.status === "PASS" ? "#dcfce7" : "#FEE2E2"}/>
               </div>
             ))}
-            <div style={{ marginTop:12 }}>
-              <div style={{ fontSize:11, fontWeight:700, color:GRAY, marginBottom:6 }}>CRITICAL UNCOVERED PATHS</div>
-              <div style={{ fontSize:32, fontWeight:900, color: rel.testCoverage.criticalUncovered > 0 ? RED : GREEN, fontFamily:MONO, textAlign:"center" }}>
+            <div style={{ marginTop:14 }}>
+              <div style={{ fontSize:10, fontWeight:700, color:INK_MUTED, textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:6 }}>Critical Uncovered Paths</div>
+              <div style={{ fontSize:36, fontWeight:900, color: rel.testCoverage.criticalUncovered > 0 ? RED : GREEN, fontFamily:MONO, textAlign:"center" }}>
                 {rel.testCoverage.criticalUncovered}
               </div>
               {rel.testCoverage.criticalUncovered > 0 && (
-                <div style={{ fontSize:11, color:"#991B1B", textAlign:"center" }}>critical paths without test coverage</div>
+                <div style={{ fontSize:11, color:"#991B1B", textAlign:"center", marginTop:4 }}>critical paths without test coverage</div>
               )}
             </div>
           </Card>
           <Card style={{ gridColumn:"1/-1" }}>
             <STitle>Coverage Bar</STitle>
             <div style={{ marginBottom:8 }}>
-              <div style={{ display:"flex", justifyContent:"space-between", fontSize:11, color:GRAY, marginBottom:4 }}>
-                <span>0%</span><span style={{ color:AMBER }}>62% min</span><span style={{ color:BLUE }}>75% target</span><span>100%</span>
+              <div style={{ display:"flex", justifyContent:"space-between", fontSize:11, color:INK_MUTED, marginBottom:6 }}>
+                <span>0%</span>
+                <span style={{ color:AMBER }}>62% min</span>
+                <span style={{ color:BLUE }}>75% target</span>
+                <span>100%</span>
               </div>
-              <div style={{ position:"relative", height:24, background:"#F3F4F6", borderRadius:12 }}>
+              <div style={{ position:"relative", height:24, background:BORDER_L, borderRadius:12 }}>
                 <div style={{ position:"absolute", left:"62%", top:0, bottom:0, width:2, background:AMBER }}/>
                 <div style={{ position:"absolute", left:"75%", top:0, bottom:0, width:2, background:BLUE }}/>
                 <div style={{ position:"absolute", left:0, top:0, bottom:0, borderRadius:12,
                   width:`${rel.testCoverage.after}%`,
                   background: rel.testCoverage.after >= 75 ? GREEN : rel.testCoverage.after >= 62 ? AMBER : RED,
                   transition:"width 0.5s" }}/>
-                <div style={{ position:"absolute", top:4, left:`${rel.testCoverage.after - 3}%`, fontSize:11, fontWeight:800, color:"#fff" }}>
+                <div style={{ position:"absolute", top:4, left:`${rel.testCoverage.after - 3}%`, fontSize:11, fontWeight:800, color:"#fff", fontFamily:MONO }}>
                   {rel.testCoverage.after}%
                 </div>
               </div>
@@ -350,24 +374,27 @@ export default function ReleaseRiskPredictor() {
         <Card>
           <STitle>Release Timeline</STitle>
           <div style={{ position:"relative", paddingLeft:32 }}>
-            <div style={{ position:"absolute", left:11, top:0, bottom:0, width:2, background:"#E5E7EB" }}/>
-            {rel.timeline.map((phase,i) => {
-              const c = phase.status === "complete" ? GREEN : phase.status === "in-progress" ? AMBER : GRAY;
+            <div style={{ position:"absolute", left:11, top:0, bottom:0, width:2, background:BORDER }}/>
+            {rel.timeline.map((phase, i) => {
+              const c = phase.status === "complete" ? GREEN : phase.status === "in-progress" ? AMBER : INK_MUTED;
               const icon = phase.status === "complete" ? "✓" : phase.status === "in-progress" ? "●" : "○";
               return (
                 <div key={i} style={{ position:"relative", marginBottom:20 }}>
                   <div style={{ position:"absolute", left:-32, top:0, width:22, height:22, borderRadius:"50%",
-                    background: phase.status === "complete" ? GREEN : phase.status === "in-progress" ? AMBER : "#E5E7EB",
+                    background: phase.status === "complete" ? GREEN : phase.status === "in-progress" ? AMBER : BORDER,
                     display:"flex", alignItems:"center", justifyContent:"center", fontSize:11, color:"#fff", fontWeight:900, border:`2px solid ${c}` }}>
                     {icon}
                   </div>
-                  <div style={{ padding:"10px 14px", background: phase.status === "in-progress" ? "#FEF9C3" : "#F9FAFB",
-                    borderRadius:8, border:`1px solid ${phase.status==="in-progress"?AMBER:"#E5E7EB"}` }}>
+                  <div style={{ padding:"10px 14px",
+                    background: phase.status === "in-progress" ? "#FEF9C3" : LIGHT,
+                    borderRadius:8, border:`1px solid ${phase.status === "in-progress" ? AMBER : BORDER}` }}>
                     <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
-                      <div style={{ fontWeight:700, fontSize:13, color:phase.status==="pending"?GRAY:"#111827" }}>{phase.phase}</div>
-                      <div style={{ fontSize:11, fontFamily:MONO, color:GRAY }}>{phase.date}</div>
+                      <div style={{ fontWeight:600, fontSize:13, color: phase.status === "pending" ? INK_MUTED : INK }}>{phase.phase}</div>
+                      <div style={{ fontSize:11, fontFamily:MONO, color:INK_MUTED }}>{phase.date}</div>
                     </div>
-                    <Badge label={phase.status.toUpperCase()} color={c} bg={c+"20"}/>
+                    <div style={{ marginTop:4 }}>
+                      <Badge label={phase.status.toUpperCase()} color={c} bg={c + "20"}/>
+                    </div>
                   </div>
                 </div>
               );
@@ -381,8 +408,8 @@ export default function ReleaseRiskPredictor() {
           <Card style={{ gridColumn:"1/-1" }}>
             <STitle>AI-Recommended Targeted Regression Scope</STitle>
             <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10 }}>
-              {rel.targetedRegression.map((t,i) => (
-                <div key={i} style={{ padding:"10px 14px", background:LIGHT, borderRadius:8, borderLeft:`3px solid ${BLUE}`, fontSize:12, fontWeight:600, color:BLUE }}>
+              {rel.targetedRegression.map((t, i) => (
+                <div key={i} style={{ padding:"10px 14px", background:LIGHT, borderRadius:8, borderLeft:`3px solid ${BLUE}`, border:`1px solid ${BORDER}`, borderLeftWidth:3, fontSize:12, fontWeight:600, color:BLUE }}>
                   🎯 {t}
                 </div>
               ))}
@@ -392,12 +419,12 @@ export default function ReleaseRiskPredictor() {
             <STitle>Regression Scope Logic</STitle>
             {[
               { label:"Changed Gosu files mapped to", value:`${rel.gitDiff.gosuFiles} test suites` },
-              { label:"PCF changes trigger",          value:`UI regression scope` },
-              { label:"Integration changes trigger",  value:`Smoke test suite` },
-              { label:"Config changes trigger",       value:`Config validation scripts` },
+              { label:"PCF changes trigger",          value:"UI regression scope" },
+              { label:"Integration changes trigger",  value:"Smoke test suite" },
+              { label:"Config changes trigger",       value:"Config validation scripts" },
             ].map(r => (
-              <div key={r.label} style={{ padding:"8px 0", borderBottom:"1px solid #F3F4F6", fontSize:12 }}>
-                <span style={{ color:GRAY }}>{r.label} </span>
+              <div key={r.label} style={{ padding:"8px 0", borderBottom:`1px solid ${BORDER_L}`, fontSize:12 }}>
+                <span style={{ color:INK_SEC }}>{r.label} </span>
                 <span style={{ fontWeight:700, color:BLUE }}>{r.value}</span>
               </div>
             ))}
@@ -410,15 +437,15 @@ export default function ReleaseRiskPredictor() {
               { area:"UI Regression (PCF changes)",     hours: Math.round(rel.gitDiff.pcfFiles * 0.8) },
               { area:"Config Validation",               hours: Math.round(rel.gitDiff.configFiles * 0.3) },
             ].map(r => (
-              <div key={r.area} style={{ display:"flex", justifyContent:"space-between", padding:"6px 0", borderBottom:"1px solid #F3F4F6" }}>
-                <span style={{ fontSize:11, color:"#374151" }}>{r.area}</span>
+              <div key={r.area} style={{ display:"flex", justifyContent:"space-between", padding:"7px 0", borderBottom:`1px solid ${BORDER_L}` }}>
+                <span style={{ fontSize:11, color:INK_SEC }}>{r.area}</span>
                 <span style={{ fontSize:12, fontWeight:800, color:BLUE, fontFamily:MONO }}>{r.hours}h</span>
               </div>
             ))}
-            <div style={{ display:"flex", justifyContent:"space-between", padding:"8px 0", background:LIGHT, borderRadius:7, marginTop:8, paddingLeft:8, paddingRight:8 }}>
+            <div style={{ display:"flex", justifyContent:"space-between", padding:"10px 12px", background:LIGHT, borderRadius:8, marginTop:10, border:`1px solid ${BORDER}` }}>
               <span style={{ fontSize:12, fontWeight:700, color:BLUE }}>Total Estimated</span>
               <span style={{ fontSize:14, fontWeight:900, color:BLUE, fontFamily:MONO }}>
-                {Math.round(rel.gitDiff.gosuFiles*0.4) + rel.integrations.length*2 + Math.round(rel.gitDiff.pcfFiles*0.8) + Math.round(rel.gitDiff.configFiles*0.3)}h
+                {Math.round(rel.gitDiff.gosuFiles * 0.4) + rel.integrations.length * 2 + Math.round(rel.gitDiff.pcfFiles * 0.8) + Math.round(rel.gitDiff.configFiles * 0.3)}h
               </span>
             </div>
           </Card>
@@ -427,30 +454,32 @@ export default function ReleaseRiskPredictor() {
 
       case "ai": return (
         <Card style={{ borderLeft:`4px solid ${BLUE}`, background:LIGHT }}>
-          <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:16 }}>
-            <div style={{ width:36, height:36, borderRadius:10, background:BLUE, display:"flex", alignItems:"center", justifyContent:"center", fontSize:20 }}>🤖</div>
+          <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:16 }}>
+            <div style={{ width:40, height:40, borderRadius:10, background:BLUE, display:"flex", alignItems:"center", justifyContent:"center", fontSize:20, flexShrink:0 }}>🤖</div>
             <div>
-              <div style={{ fontWeight:800, fontSize:14, color:BLUE }}>AI Release Intelligence</div>
-              <div style={{ fontSize:11, color:GRAY }}>Trained on 24 historical releases · {new Date().toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"})}</div>
+              <div style={{ fontWeight:700, fontSize:14, color:BLUE }}>AI Release Intelligence</div>
+              <div style={{ fontSize:11, color:INK_MUTED, fontFamily:MONO }}>
+                Trained on 24 historical releases · {new Date().toLocaleDateString("en-GB", { day:"2-digit", month:"short", year:"numeric" })}
+              </div>
             </div>
             <div style={{ marginLeft:"auto" }}>
-              <div style={{ padding:"4px 12px", background:rcColor, color:"#fff", borderRadius:8, fontWeight:800, fontSize:12 }}>
+              <div style={{ padding:"5px 14px", background:rcColor, color:"#fff", borderRadius:9999, fontWeight:700, fontSize:12 }}>
                 {rel.recommendation}
               </div>
             </div>
           </div>
-          <div style={{ fontSize:13, color:"#1E3A5F", lineHeight:1.8, background:"#fff", padding:16, borderRadius:10, border:"1px solid #D1D5DB" }}>
+          <div style={{ fontSize:13, color:INK, lineHeight:1.8, background:"#fff", padding:18, borderRadius:12, border:`1px solid ${BORDER}` }}>
             {rel.aiInsight}
           </div>
-          <div style={{ marginTop:14, display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:10 }}>
+          <div style={{ marginTop:16, display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:10 }}>
             {[
-              { label:"Risk Score",       value:rel.riskScore+"/100",  color:scoreColor(rel.riskScore) },
-              { label:"Rollback Prob.",    value:rel.rollbackProb+"%",  color:rel.rollbackProb>25?RED:GREEN },
-              { label:"Files Changed",    value:rel.gitDiff.filesChanged, color:BLUE },
+              { label:"Risk Score",    value: rel.riskScore + "/100", color: scoreColor(rel.riskScore) },
+              { label:"Rollback Prob.",value: rel.rollbackProb + "%", color: rel.rollbackProb > 25 ? RED : GREEN },
+              { label:"Files Changed", value: rel.gitDiff.filesChanged, color: BLUE },
             ].map(k => (
-              <div key={k.label} style={{ textAlign:"center", padding:"10px 8px", background:"#fff", borderRadius:8, border:"1px solid #E5E7EB" }}>
-                <div style={{ fontSize:9, color:GRAY, fontWeight:700, textTransform:"uppercase", marginBottom:4 }}>{k.label}</div>
-                <div style={{ fontSize:20, fontWeight:900, color:k.color, fontFamily:MONO }}>{k.value}</div>
+              <div key={k.label} style={{ textAlign:"center", padding:"12px 8px", background:"#fff", borderRadius:10, border:`1px solid ${BORDER}` }}>
+                <div style={{ fontSize:9, color:INK_MUTED, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:4 }}>{k.label}</div>
+                <div style={{ fontSize:22, fontWeight:900, color:k.color, fontFamily:MONO }}>{k.value}</div>
               </div>
             ))}
           </div>
@@ -462,72 +491,79 @@ export default function ReleaseRiskPredictor() {
   };
 
   return (
-    <div style={{ fontFamily:SANS, minHeight:"100vh", background:"#F0F2F5" }}>
+    <div style={{ fontFamily:SANS, minHeight:"100vh", background:LIGHT }}>
 
-      {/* Header */}
-      <div style={{ background:BLUE, height:56, display:"flex", alignItems:"center", justifyContent:"space-between", padding:"0 24px", boxShadow:"0 2px 8px rgba(0,0,0,0.2)" }}>
-        <div style={{ display:"flex", alignItems:"center", gap:12 }}>
-          <div style={{ display:"flex", gap:3 }}>
-            <div style={{ width:6, height:40, background:RED, borderRadius:2 }}/>
-            <div style={{ width:6, height:40, background:"#fff", borderRadius:2 }}/>
+      {/* Topbar */}
+      <div style={{ background:"#fff", height:60, display:"flex", alignItems:"center", justifyContent:"space-between",
+        padding:"0 28px", position:"sticky", top:0, zIndex:100, borderBottom:`1px solid ${BORDER}`, boxShadow:SHADOW_SM }}>
+        <div style={{ display:"flex", alignItems:"center", gap:14 }}>
+          <div style={{ width:36, height:36, background:BLUE, borderRadius:8, display:"flex", alignItems:"center",
+            justifyContent:"center", fontSize:18, color:"#fff", fontFamily:SERIF, flexShrink:0 }}>
+            R
           </div>
           <div>
-            <div style={{ color:"#fff", fontWeight:900, fontSize:14, letterSpacing:"0.02em" }}>Release Risk Predictor</div>
-            <div style={{ color:"rgba(255,255,255,0.55)", fontSize:9, fontWeight:700, letterSpacing:"0.1em", textTransform:"uppercase" }}>Guidewire AMS · Predictive Analytics</div>
+            <div style={{ fontWeight:700, fontSize:15, color:INK, lineHeight:1.2 }}>Release Risk Predictor</div>
+            <div style={{ fontSize:10, color:INK_MUTED, fontWeight:500, letterSpacing:"0.08em", textTransform:"uppercase", marginTop:1 }}>
+              Guidewire AMS · Predictive Analytics
+            </div>
           </div>
         </div>
-        <div style={{ display:"flex", gap:8 }}>
-          <div style={{ padding:"3px 12px", background:"rgba(255,255,255,0.12)", borderRadius:16, fontSize:11, color:"#fff", fontWeight:600 }}>
+        <div style={{ display:"flex", gap:8, alignItems:"center" }}>
+          <div style={{ padding:"3px 12px", background:LIGHT, border:`1px solid ${BORDER}`, borderRadius:9999, fontSize:11, color:INK_SEC, fontWeight:600 }}>
             🚀 {rel.id}
           </div>
-          <div style={{ padding:"3px 12px", background:rcColor, borderRadius:16, fontSize:11, color:"#fff", fontWeight:800 }}>
+          <div style={{ padding:"3px 12px", background:rcColor, borderRadius:9999, fontSize:11, color:"#fff", fontWeight:700, fontFamily:MONO }}>
             {rel.recommendation}
           </div>
         </div>
       </div>
 
-      <div style={{ maxWidth:1100, margin:"0 auto", padding:20 }}>
+      <div style={{ maxWidth:1100, margin:"0 auto", padding:"24px 20px" }}>
 
         {/* Release selector */}
         <div style={{ display:"flex", gap:10, marginBottom:20 }}>
           {RELEASES.map(r => (
             <div key={r.id} onClick={() => { setSelected(r); setTab("overview"); }}
-              style={{ flex:1, padding:"12px 14px", borderRadius:10, cursor:"pointer",
-                border:`2px solid ${selected.id===r.id ? BLUE : "#E5E7EB"}`,
-                background:selected.id===r.id ? LIGHT : "#fff",
-                boxShadow: selected.id===r.id ? `0 4px 12px ${BLUE}20` : "0 1px 3px rgba(0,0,0,0.06)" }}>
+              style={{ flex:1, padding:"12px 14px", borderRadius:12, cursor:"pointer",
+                border:`2px solid ${selected.id === r.id ? BLUE : BORDER}`,
+                background: selected.id === r.id ? LIGHT : "#fff",
+                boxShadow: selected.id === r.id ? SHADOW_MD : SHADOW_SM,
+                transition:"border-color 0.15s, box-shadow 0.15s" }}>
               <div style={{ display:"flex", justifyContent:"space-between", marginBottom:4 }}>
-                <div style={{ fontSize:11, fontWeight:800, color:selected.id===r.id?BLUE:"#374151" }}>{r.name}</div>
-                <div style={{ fontSize:10, fontWeight:800, color:RISK_COLORS[r.riskBand], background:RISK_BG[r.riskBand], padding:"1px 7px", borderRadius:8 }}>{r.riskBand}</div>
+                <div style={{ fontSize:11, fontWeight:700, color: selected.id === r.id ? BLUE : INK }}>{r.name}</div>
+                <div style={{ fontSize:10, fontWeight:700, color:RISK_COLORS[r.riskBand], background:RISK_BG[r.riskBand], padding:"1px 8px", borderRadius:9999 }}>{r.riskBand}</div>
               </div>
-              <div style={{ fontSize:10, color:GRAY }}>{r.module} · {r.target}</div>
-              <div style={{ marginTop:8, height:4, background:"#E5E7EB", borderRadius:2 }}>
+              <div style={{ fontSize:10, color:INK_MUTED, fontFamily:MONO }}>{r.module} · {r.target}</div>
+              <div style={{ marginTop:8, height:4, background:BORDER, borderRadius:2 }}>
                 <div style={{ height:4, width:`${r.riskScore}%`, background:scoreColor(r.riskScore), borderRadius:2 }}/>
               </div>
-              <div style={{ display:"flex", justifyContent:"space-between", marginTop:2, fontSize:9, color:GRAY, fontFamily:MONO }}>
+              <div style={{ display:"flex", justifyContent:"space-between", marginTop:4, fontSize:9, color:INK_MUTED, fontFamily:MONO }}>
                 <span>Risk: {r.riskScore}/100</span><span>Rollback: {r.rollbackProb}%</span>
               </div>
             </div>
           ))}
         </div>
 
-        {/* Sub-tabs */}
-        <div style={{ background:"#fff", borderRadius:10, border:"1px solid #E5E7EB", padding:"0 4px", display:"flex", gap:0, marginBottom:16, overflowX:"auto" }}>
+        {/* Sub-nav tabs */}
+        <div style={{ background:"#fff", borderRadius:12, border:`1px solid ${BORDER}`, padding:"0 4px",
+          display:"flex", gap:0, marginBottom:16, overflowX:"auto", boxShadow:SHADOW_SM }}>
           {TABS.map(t => (
             <button key={t.id} onClick={() => setTab(t.id)}
-              style={{ padding:"11px 16px", border:"none", background:"none", cursor:"pointer", fontSize:11, fontWeight:700, whiteSpace:"nowrap",
-                color:tab===t.id?BLUE:GRAY, borderBottom:tab===t.id?`3px solid ${BLUE}`:"3px solid transparent",
-                transition:"all 0.15s", fontFamily:SANS }}>
+              style={{ padding:"12px 16px", border:"none", background:"none", cursor:"pointer",
+                fontSize:11, fontWeight: tab === t.id ? 600 : 500, whiteSpace:"nowrap",
+                color: tab === t.id ? BLUE : INK_SEC,
+                borderBottom: tab === t.id ? `2.5px solid ${BLUE}` : "2.5px solid transparent",
+                transition:"color 0.15s, border-color 0.15s", fontFamily:SANS }}>
               {t.label}
             </button>
           ))}
         </div>
 
-        {/* Content */}
+        {/* Tab content */}
         {renderTab()}
 
         {/* Footer */}
-        <div style={{ textAlign:"center", marginTop:20, fontSize:10, color:GRAY }}>
+        <div style={{ textAlign:"center", marginTop:24, fontSize:10, color:INK_MUTED, fontFamily:MONO }}>
           Release Risk Predictor · Guidewire AMS · Trained on {rel.historicalReleases} historical releases · Confidential
         </div>
       </div>
