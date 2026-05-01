@@ -6,8 +6,8 @@ const GREEN = "#16A34A";
 const AMBER = "#D97706";
 const LIGHT = "#E8EEF7";
 const GRAY  = "#6B7280";
-const MONO  = "'IBM Plex Mono', 'Courier New', monospace";
-const SANS  = "'IBM Plex Sans', 'Segoe UI', sans-serif";
+const MONO  = "'Courier New', monospace";
+const SANS  = "'Noto Sans', 'Segoe UI', sans-serif";
 
 // ── Sample Release Data ──────────────────────────────────────────────────────
 const RELEASES = [
@@ -303,7 +303,7 @@ export default function ReleaseRiskPredictor() {
             <STitle>Coverage Thresholds</STitle>
             {[
               { label:"Minimum acceptable",       threshold:"62%", status: rel.testCoverage.after >= 62 ? "PASS" : "FAIL" },
-              { label:"Target (NTT DATA standard)",threshold:"75%", status: rel.testCoverage.after >= 75 ? "PASS" : "FAIL" },
+              { label:"Target (industry standard)",threshold:"75%", status: rel.testCoverage.after >= 75 ? "PASS" : "FAIL" },
               { label:"Excellence benchmark",      threshold:"85%", status: rel.testCoverage.after >= 85 ? "PASS" : "FAIL" },
             ].map(r => (
               <div key={r.label} style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"10px 0", borderBottom:"1px solid #F3F4F6" }}>
@@ -472,8 +472,8 @@ export default function ReleaseRiskPredictor() {
             <div style={{ width:6, height:40, background:"#fff", borderRadius:2 }}/>
           </div>
           <div>
-            <div style={{ color:"#fff", fontWeight:900, fontSize:14, letterSpacing:"0.02em" }}>NTT DATA</div>
-            <div style={{ color:"rgba(255,255,255,0.55)", fontSize:9, fontWeight:700, letterSpacing:"0.1em", textTransform:"uppercase" }}>Release Risk Predictor · Guidewire AMS</div>
+            <div style={{ color:"#fff", fontWeight:900, fontSize:14, letterSpacing:"0.02em" }}>Release Risk Predictor</div>
+            <div style={{ color:"rgba(255,255,255,0.55)", fontSize:9, fontWeight:700, letterSpacing:"0.1em", textTransform:"uppercase" }}>Guidewire AMS · Predictive Analytics</div>
           </div>
         </div>
         <div style={{ display:"flex", gap:8 }}>
@@ -528,7 +528,7 @@ export default function ReleaseRiskPredictor() {
 
         {/* Footer */}
         <div style={{ textAlign:"center", marginTop:20, fontSize:10, color:GRAY }}>
-          NTT DATA Release Risk Predictor · Guidewire AMS · Trained on {rel.historicalReleases} historical releases · Confidential
+          Release Risk Predictor · Guidewire AMS · Trained on {rel.historicalReleases} historical releases · Confidential
         </div>
       </div>
     </div>
